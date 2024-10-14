@@ -1,6 +1,7 @@
 # ISO 20022
 
-ISO 20022 is an international standard for electronic data interchange between financial institutions. It provides a common platform for the development of messages using a standardized XML syntax. The standard covers a wide range of financial services including payments, securities, trade services, cards, and foreign exchange. It aims to facilitate interoperability and improve the efficiency of financial transactions.
+ISO 20022 is the standard for financial messaging, enabling integration between blockchain and traditional financial systems.
+It provides a common platform for the development of messages using a standardized XML syntax. The standard covers a wide range of financial services including payments, securities, trade services, cards, and foreign exchange. It aims to facilitate interoperability and improve the efficiency of financial transactions.
 
 ## Key Features
 
