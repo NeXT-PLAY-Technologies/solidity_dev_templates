@@ -1,180 +1,116 @@
 #!/bin/bash
 
+# Change to the project root directory
+cd "$(dirname "$0")/.." || exit
+
 # Log file
 LOG_FILE="create_structure.log"
 echo "Starting directory creation..." > "$LOG_FILE"
 
-# Define the base directory for the project as the root
-BASE_DIR="$(dirname "$(realpath "$0")")/.."
+# Define the base directory for the project as the root, allowing custom paths
+BASE_DIR=${1:-"../solidity_dev_templates"}
+echo "Base directory: $BASE_DIR" >> "$LOG_FILE"
 
-# Create the necessary directories and files
-mkdir -p $BASE_DIR/{ci,contracts/{token_standards,modular_extensions,financial_instruments},projects,documentation,frontend/{public,src/components,src/utils},scripts,third_party/{blockchain,fiat_currency},tests/{gas_optimization_tests,integration_tests,security_tests,unit_tests},utils}
+# Function to create directories and log success or error
+create_directory() {
+  local DIR=$1
+  mkdir -p "$DIR" && echo "Created $DIR" >> "$LOG_FILE" || { echo "Failed to create $DIR" | tee -a "$LOG_FILE"; exit 1; }
+}
 
-# Create files in the root directory
-touch $BASE_DIR/LICENSE.md
-touch $BASE_DIR/README.md
-touch $BASE_DIR/TODO.md
+# Function to create files and populate basic content
+create_file() {
+  local FILE=$1
+  local CONTENT=$2
+  [ ! -f "$FILE" ] && echo "$CONTENT" > "$FILE" && echo "Created $FILE" >> "$LOG_FILE" || echo "Skipped $FILE, already exists" >> "$LOG_FILE"
+}
 
-# Create README.md files in various directories
-touch $BASE_DIR/ci/README.md
-touch $BASE_DIR/contracts/README.md
-touch $BASE_DIR/documentation/{README.md,azure_web_profile.md,dev_environment.md,erc_standards.md,iso_standards.md,oracle_integration.md,fiat_currency_transfers.md,multi_sig_wallets.md,kyc_compliance.md,layer2_scaling.md,frontend_integration.md,governance_integration.md}
-touch $BASE_DIR/frontend/{public/index.html,public/styles.css,src/App.js,src/index.js,src/App.css}
-touch $BASE_DIR/frontend/src/components/{FiatTransfer.js,BlockchainActions.js,KYCForm.js}
-touch $BASE_DIR/frontend/src/utils/{web3.js,oracle.js,fiatApi.js}
-touch $BASE_DIR/scripts/{deploy_token_factory.sh,deploy_fiat_gateway.sh,deploy_governance_modules.sh,mint_tokens.sh,oracle_interaction.sh,verify_contracts.sh,setup_factory_config.sh}
-touch $BASE_DIR/third_party/{README.md}
-touch $BASE_DIR/third_party/blockchain/{infura/README.md,chainlink/README.md,chainlink/price_feed.sol,chainlink/randomness.sol,openzeppelin/README.md,etherscan/verify_contracts.sh,alchemy/README.md}
-touch $BASE_DIR/third_party/fiat_currency/{README.md,swift/{README.md,swift_transfer_example.sol},sepa/README.md,iso_20022/{README.md,iso_20022_integration.md,payment_message_example.xml},payment_gateways/{stripe/{README.md,stripe_integration.md,stripe_payment_example.sol},paypal/{README.md,paypal_integration.md,paypal_payment_example.sol}},bank_apis/{README.md,plaid_integration.md}}
-touch $BASE_DIR/tests/{README.md,gas_optimization_tests/gas_tests.js,integration_tests/test_fiat_transfers.js,security_tests/test_kyc_compliance.js,unit_tests/test_token_factory.js}
-touch $BASE_DIR/utils/{token_helpers.js,governance_helpers.js,signature_verification.js,role_management.js}
+# Create directories in parallel
+create_directory "$BASE_DIR/ci" &
+create_directory "$BASE_DIR/contracts/token_standards" &
+create_directory "$BASE_DIR/contracts/modular_extensions" &
+create_directory "$BASE_DIR/contracts/financial_instruments" &
+create_directory "$BASE_DIR/projects" &
+create_directory "$BASE_DIR/documentation" &
+create_directory "$BASE_DIR/frontend/public" &
+create_directory "$BASE_DIR/frontend/src/components" &
+create_directory "$BASE_DIR/frontend/src/utils" &
+create_directory "$BASE_DIR/scripts" &
+create_directory "$BASE_DIR/third_party/blockchain" &
+create_directory "$BASE_DIR/third_party/fiat_currency" &
+create_directory "$BASE_DIR/third_party/ai" &
+create_directory "$BASE_DIR/third_party/cross_chain" &
+create_directory "$BASE_DIR/third_party/cloud" &
+create_directory "$BASE_DIR/third_party/domains" &
+create_directory "$BASE_DIR/third_party/data_feeds" &
+create_directory "$BASE_DIR/third_party/payments" &
+create_directory "$BASE_DIR/third_party/open_banking" &
+create_directory "$BASE_DIR/tests/gas_optimization_tests" &
+create_directory "$BASE_DIR/tests/integration_tests" &
+create_directory "$BASE_DIR/tests/security_tests" &
+create_directory "$BASE_DIR/tests/unit_tests" &
+create_directory "$BASE_DIR/utils" &
+wait
 
-# Create project directories and README.md files in the projects directory
-mkdir -p $BASE_DIR/projects/{egx_token,gte_token,global_reserve_unit,colo_sos_ucc,iboe_multi-token}
-touch $BASE_DIR/projects/egx_token/README.md
-touch $BASE_DIR/projects/gte_token/README.md
-touch $BASE_DIR/projects/global_reserve_unit/README.md
-touch $BASE_DIR/projects/colo_sos_ucc/README.md
-touch $BASE_DIR/projects/iboe_multi-token/README.md
-touch $BASE_DIR/projects/README.md
+# Create key files with default content
+create_file "$BASE_DIR/LICENSE.md" "License details go here."
+create_file "$BASE_DIR/README.md" "# Project Title\nThis project is structured with token standards, third-party integrations, and testing modules."
+create_file "$BASE_DIR/TODO.md" "# TODO List\n- Complete setup for all token standards and integrations."
 
-# List of ERC standards
-ERC_STANDARDS=(
-  "ERC-20"
-  "ERC-721"
-  "ERC-777"
-  "ERC-1155"
-  "ERC-2535"
-  "IERC"
-  "ERC-4626"
-  "ERC-1363"
-  "ERC-1400"
-  "ERC-998"
-)
+# Dynamic lists for ERC standards, ISO standards, tokenized financial instruments, and third-party services
+ERC_STANDARDS=("ERC-20" "ERC-721" "ERC-777" "ERC-1155" "ERC-2535" "IERC" "ERC-4626" "ERC-1363" "ERC-1400" "ERC-998")
+ISO_STANDARDS=("ISO_20022" "ISO_4217" "ISO_10962" "ISO_17442" "ISO_8583" "ISO_27001" "ISO_29115" "ISO_29100" "ISO_18013" "ISO_13616" "ISO_9362" "ISO_10383" "ISO_6166" "ISO_15022" "ISO_7812" "ISO_7816")
+TOKENIZED_INSTRUMENTS=("EquityTokens" "DebtTokens" "RealEstateTokens" "CommodityTokens" "FundTokens" "Bonds" "MTNs" "LTNs" "CDs" "LedgerDeposits" "OtherInstruments")
+THIRD_PARTY_SERVICES=("wagmi" "wallet_connect" "consensys_linea" "consensys_quorum" "layerzero_bridge" "synapse_protocol" "allbridge" "hop_protocol" "plaid" "yodlee" "open_bank_project" "decentro" "tink")
 
-# List of ISO standards
-ISO_STANDARDS=(
-  "ISO_20022"
-  "ISO_4217"
-  "ISO_10962"
-  "ISO_17442"
-  "ISO_8583"
-  "ISO_27001"
-  "ISO_29115"
-  "ISO_29100"
-  "ISO_18013"
-  "ISO_13616"
-  "ISO_9362"
-  "ISO_10383"
-  "ISO_6166"
-  "ISO_15022"
-  "ISO_7812"
-  "ISO_7816"
-)
-
-# List of tokenized financial instruments
-TOKENIZED_INSTRUMENTS=(
-  "EquityTokens"
-  "DebtTokens"
-  "RealEstateTokens"
-  "CommodityTokens"
-  "FundTokens"
-  "Bonds"
-  "MTNs"  # Medium-Term Notes
-  "LTNs"  # Long-Term Notes
-  "CDs"   # Certificates of Deposit
-  "LedgerDeposits"
-  "OtherInstruments"
-)
-
-# List of third-party integrations
-THIRD_PARTY_SERVICES=(
-  "wagmi"
-  "wallet_connect"
-  "consensys_linea"
-  "consensys_quorum"
-  "layerzero_bridge"
-  "synapse_protocol"
-  "allbridge"
-  "hop_protocol"
-  "plaid"
-  "yodlee"
-  "open_bank_project"
-  "decentro"
-  "tink"
-)
-
-# Create a directory for each ERC standard in contracts, templates, and src
+# Create directories and README.md files for ERC standards
 for STANDARD in "${ERC_STANDARDS[@]}"; do
   DIR_NAME=$(echo "$STANDARD" | tr -d '[:punct:]' | tr ' ' '_')
-  
-  CONTRACT_PATH="$BASE_DIR/contracts/token_standards/$DIR_NAME"
-  TEMPLATE_PATH="$BASE_DIR/templates/$DIR_NAME"
-  SRC_PATH="$BASE_DIR/src/$DIR_NAME"
-  
-  mkdir -p "$CONTRACT_PATH" "$TEMPLATE_PATH" "$SRC_PATH" || { echo "Failed to create directories for $STANDARD. Aborting." | tee -a "$LOG_FILE"; exit 1; }
-  echo "Created directories for $STANDARD" | tee -a "$LOG_FILE"
-  
-  # Create README.md in each directory
-  echo "# $STANDARD" > "$CONTRACT_PATH/README.md"
-  echo "# $STANDARD" > "$TEMPLATE_PATH/README.md"
-  echo "# $STANDARD" > "$SRC_PATH/README.md"
+  create_directory "$BASE_DIR/contracts/token_standards/$DIR_NAME"
+  create_file "$BASE_DIR/contracts/token_standards/$DIR_NAME/README.md" "# $STANDARD Token Standard\nDescription and implementation details for $STANDARD."
 done
 
-# Create token_factory directory in templates
-mkdir -p "$BASE_DIR/templates/token_factory" || { echo "Failed to create token factory directory. Aborting." | tee -a "$LOG_FILE"; exit 1; }
-echo "Created token factory directory" | tee -a "$LOG_FILE"
-echo "# Token Factory" > "$BASE_DIR/templates/token_factory/README.md"
+# Create directories and README.md files for ISO standards
+for STANDARD in "${ISO_STANDARDS[@]}"; do
+  create_directory "$BASE_DIR/standards/$STANDARD"
+  create_file "$BASE_DIR/standards/$STANDARD/README.md" "# $STANDARD\nISO Standard for $STANDARD."
+done
 
-# Create directories for tokenized financial instruments in templates
+# Create directories and README.md files for tokenized financial instruments
 for INSTRUMENT in "${TOKENIZED_INSTRUMENTS[@]}"; do
-  INSTRUMENT_PATH="$BASE_DIR/templates/$INSTRUMENT"
-  mkdir -p "$INSTRUMENT_PATH" || { echo "Failed to create directory for $INSTRUMENT. Aborting." | tee -a "$LOG_FILE"; exit 1; }
-  echo "Created directory for $INSTRUMENT" | tee -a "$LOG_FILE"
-  echo "# $INSTRUMENT" > "$INSTRUMENT_PATH/README.md"
+  create_directory "$BASE_DIR/templates/$INSTRUMENT"
+  create_file "$BASE_DIR/templates/$INSTRUMENT/README.md" "# $INSTRUMENT\nDetails on $INSTRUMENT tokenization."
 done
 
-# Create triangulation directory in src
-mkdir -p "$BASE_DIR/src/triangulation" || { echo "Failed to create triangulation directory. Aborting." | tee -a "$LOG_FILE"; exit 1; }
-echo "Created triangulation directory" | tee -a "$LOG_FILE"
-echo "# Triangulation" > "$BASE_DIR/src/triangulation/README.md"
+# Create directories for third-party integrations and README.md files
+for SERVICE in "${THIRD_PARTY_SERVICES[@]}"; do
+  create_directory "$BASE_DIR/third_party/blockchain/$SERVICE"
+  create_file "$BASE_DIR/third_party/blockchain/$SERVICE/README.md" "# $SERVICE Integration\nInstructions and setup details for $SERVICE."
+done
 
-# Create additional directories and placeholder files for facets
+# Create directories for governance facets and other modular extensions
 FACETS_DIR="$BASE_DIR/contracts/modular_extensions/ERC-2535/facets"
-mkdir -p "$FACETS_DIR" || { echo "Failed to create facets directory. Aborting." | tee -a "$LOG_FILE"; exit 1; }
+create_directory "$FACETS_DIR"
 touch "$FACETS_DIR/ownershipFacet.sol" "$FACETS_DIR/governanceFacet.sol" "$FACETS_DIR/multiSigWalletFacet.sol" \
       "$FACETS_DIR/quadraticVotingFacet.sol" "$FACETS_DIR/snapshotVotingFacet.sol" "$FACETS_DIR/reputationVotingFacet.sol" \
       "$FACETS_DIR/treasuryFacet.sol" "$FACETS_DIR/interoperabilityFacet.sol" "$FACETS_DIR/roleManagementFacet.sol" \
-      "$FACETS_DIR/upgradeFacet.sol" || { echo "Failed to create one or more facet files. Aborting." | tee -a "$LOG_FILE"; exit 1; }
-echo "Created facet files" | tee -a "$LOG_FILE"
-echo "# ERC-2535 Facets" > "$FACETS_DIR/README.md"
+      "$FACETS_DIR/upgradeFacet.sol" && echo "Facet files created" >> "$LOG_FILE"
+create_file "$FACETS_DIR/README.md" "# ERC-2535 Facets\nDescription of each facet and its role."
 
-# Create governance modules
-touch "$BASE_DIR/governance/modules/proposalModule.sol" "$BASE_DIR/governance/modules/votingModule.sol" \
-      "$BASE_DIR/governance/modules/delegationModule.sol" "$BASE_DIR/governance/modules/quorumModule.sol" \
-      "$BASE_DIR/governance/modules/treasuryModule.sol" "$BASE_DIR/governance/modules/timelockModule.sol" \
-      "$BASE_DIR/governance/modules/auditModule.sol" || { echo "Failed to create one or more governance module files. Aborting." | tee -a "$LOG_FILE"; exit 1; }
-echo "Created governance module files" | tee -a "$LOG_FILE"
-echo "# Governance Modules" > "$BASE_DIR/governance/modules/README.md"
+# Automate testing setup
+create_directory "$BASE_DIR/tests/gas_optimization_tests"
+create_directory "$BASE_DIR/tests/integration_tests"
+create_directory "$BASE_DIR/tests/security_tests"
+create_directory "$BASE_DIR/tests/unit_tests"
+create_file "$BASE_DIR/tests/unit_tests/test_erc20.js" "// Unit test for ERC-20 contract"
 
-# Create directories for third-party services
-for SERVICE in "${THIRD_PARTY_SERVICES[@]}"; do
-  mkdir -p "$BASE_DIR/third_party/blockchain/$SERVICE" || { echo "Failed to create directory for $SERVICE. Aborting." | tee -a "$LOG_FILE"; exit 1; }
-  echo "Created directory for $SERVICE" | tee -a "$LOG_FILE"
-  echo "# $SERVICE Integration" > "$BASE_DIR/third_party/blockchain/$SERVICE/README.md"
-done
+# Create GitHub workflow files for CI/CD integration
+create_directory "$BASE_DIR/.github/workflows"
+create_file "$BASE_DIR/.github/workflows/ci.yml" "name: CI Workflow\non: [push]\njobs:\n  build:\n    runs-on: ubuntu-latest"
 
-# Create ISO standards directories
-for STANDARD in "${ISO_STANDARDS[@]}"; do
-  mkdir -p "$BASE_DIR/standards/$STANDARD" || { echo "Failed to create directory for $STANDARD. Aborting." | tee -a "$LOG_FILE"; exit 1; }
-  echo "Created directory for $STANDARD" | tee -a "$LOG_FILE"
-  echo "# $STANDARD" > "$BASE_DIR/standards/$STANDARD/README.md"
-done
+# Initialize Git repository and make initial commit
+if [ ! -d "$BASE_DIR/.git" ]; then
+  git init "$BASE_DIR" && cd "$BASE_DIR" && git add . && git commit -m "Initial structure created"
+  echo "Git repository initialized and initial commit made." >> "$LOG_FILE"
+fi
 
-# Create GitHub workflow files
-touch "$BASE_DIR/.github/workflows/ci.yml" || { echo "Failed to create GitHub workflow file. Aborting." | tee -a "$LOG_FILE"; exit 1; }
-echo "Created GitHub workflow file" | tee -a "$LOG_FILE"
-echo "# GitHub Workflows" > "$BASE_DIR/.github/workflows/README.md"
-
-# Provide confirmation message
-echo "All necessary directories and files have been created based on the file tree structure." | tee -a "$LOG_FILE"
+echo "All necessary directories and files have been created based on the updated file tree structure." | tee -a "$LOG_FILE"
